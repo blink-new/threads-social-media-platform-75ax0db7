@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Bell, Search, Plus, Menu, X, Settings, Crown, Shield, TrendingUp } from 'lucide-react'
+import { Bell, Search, Plus, Menu, X, Settings, Crown, Shield, TrendingUp, Flame, DollarSign } from 'lucide-react'
 import { Button } from './components/ui/button'
 import { Input } from './components/ui/input'
 import { Avatar, AvatarFallback, AvatarImage } from './components/ui/avatar'
@@ -15,6 +15,9 @@ import { PostDetail } from './components/PostDetail'
 import { NotificationCenter } from './components/NotificationCenter'
 import { PremiumSubscription } from './components/PremiumSubscription'
 import { ModerationDashboard } from './components/ModerationDashboard'
+import { SearchResults } from './components/SearchResults'
+import { CreatorDashboard } from './components/CreatorDashboard'
+import { TrendingPage } from './components/TrendingPage'
 import { blink } from './blink/client'
 
 // Types
@@ -90,7 +93,7 @@ export interface Notification {
   createdAt: string
 }
 
-export type ViewType = 'home' | 'create' | 'community' | 'profile' | 'post' | 'notifications' | 'premium' | 'moderation'
+export type ViewType = 'home' | 'create' | 'community' | 'profile' | 'post' | 'notifications' | 'premium' | 'moderation' | 'search' | 'creator' | 'trending'
 
 function App() {
   const [user, setUser] = useState<User | null>(null)
@@ -189,8 +192,7 @@ function App() {
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return
-    // Implement search functionality
-    console.log('Searching for:', searchQuery)
+    setCurrentView('search')
   }
 
   const markNotificationAsRead = async (notificationId: string) => {
@@ -255,6 +257,12 @@ function App() {
         return <PremiumSubscription user={user} onViewChange={handleViewChange} />
       case 'moderation':
         return <ModerationDashboard user={user} onViewChange={handleViewChange} />
+      case 'search':
+        return <SearchResults user={user} query={searchQuery} onViewChange={handleViewChange} />
+      case 'creator':
+        return <CreatorDashboard user={user} onViewChange={handleViewChange} />
+      case 'trending':
+        return <TrendingPage user={user} onViewChange={handleViewChange} />
       default:
         return <PostFeed user={user} onViewChange={handleViewChange} />
     }
@@ -299,12 +307,30 @@ function App() {
                     </Button>
                     
                     <Button
+                      variant={currentView === 'trending' ? 'default' : 'ghost'}
+                      className="w-full justify-start rounded-xl"
+                      onClick={() => handleViewChange('trending')}
+                    >
+                      <Flame className="w-4 h-4 mr-3" />
+                      Trending
+                    </Button>
+                    
+                    <Button
                       variant="ghost"
                       className="w-full justify-start rounded-xl threads-gradient text-white"
                       onClick={() => handleViewChange('create')}
                     >
                       <Plus className="w-4 h-4 mr-3" />
                       Create Post
+                    </Button>
+
+                    <Button
+                      variant={currentView === 'creator' ? 'default' : 'ghost'}
+                      className="w-full justify-start rounded-xl"
+                      onClick={() => handleViewChange('creator')}
+                    >
+                      <DollarSign className="w-4 h-4 mr-3" />
+                      Creator Hub
                     </Button>
 
                     {user.isPremium && (
@@ -500,6 +526,24 @@ function App() {
                   >
                     <TrendingUp className="w-4 h-4 mr-3" />
                     Home Feed
+                  </Button>
+                  
+                  <Button
+                    variant={currentView === 'trending' ? 'default' : 'ghost'}
+                    className="w-full justify-start rounded-xl"
+                    onClick={() => handleViewChange('trending')}
+                  >
+                    <Flame className="w-4 h-4 mr-3" />
+                    Trending
+                  </Button>
+
+                  <Button
+                    variant={currentView === 'creator' ? 'default' : 'ghost'}
+                    className="w-full justify-start rounded-xl"
+                    onClick={() => handleViewChange('creator')}
+                  >
+                    <DollarSign className="w-4 h-4 mr-3" />
+                    Creator Hub
                   </Button>
                   
                   {user.isPremium && (
